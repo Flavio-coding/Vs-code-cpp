@@ -322,14 +322,9 @@ if ($vsixDest -and (Test-Path $vsixDest)) {
     else { Write-Warn "Installazione cpp-runner non riuscita (ExitCode $($p.ExitCode))" }
 }
 
-foreach ($extId in @("ms-vscode.cpptools")) {
-    Write-Info "Installo $extId (IntelliSense)..."
-    $p = Start-Process -FilePath $codeExe `
-         -ArgumentList "--extensions-dir `"$extDataDir`" --install-extension $extId --force" `
-         -Wait -PassThru -WindowStyle Hidden
-    if ($p.ExitCode -eq 0) { Write-Ok "$extId installato" }
-    else { Write-Warn "${extId}: installazione non riuscita, verra' scaricato al primo avvio" }
-}
+# ms-vscode.cpptools (IntelliSense) NON viene installato automaticamente:
+# scarica ~350 MB di binari in background e rallenta enormemente il setup.
+# Installala dopo da VS Code: Extensions (Ctrl+Shift+X) > cerca "C/C++".
 
 # ── STEP 5: Collegamento desktop e launcher ───────────────────────────────────
 Write-Step 5 5 "Creazione collegamento e file di avvio..."

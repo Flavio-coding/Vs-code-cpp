@@ -248,20 +248,20 @@ $settingsJson = @"
 Set-Content -Path "$uDir\settings.json" -Value $settingsJson -Encoding UTF8
 Write-Ok "settings.json scritto"
 
-# Installa estensioni nel data dir portabile
-foreach($extItem in @(
-    @{ id="ms-vscode.cpptools"; vsix=$null },
-    @{ id="cpp-runner";         vsix=$(if($vsixOk){$vsixDest}else{$null}) }
-)){
-    $id   = $extItem.id
-    $vsix = $extItem.vsix
-    $arg  = if($vsix){ "`"$vsix`"" } else { $id }
-    Write-Info "Installo $id..."
+# Installa solo cpp-runner (la nostra estensione, ~11 KB).
+# ms-vscode.cpptools (IntelliSense) NON viene installato qui perche'
+# scarica ~350 MB di binari in background rallentando enormemente il setup.
+# L'utente puo' installarla dopo da VS Code: Extensions > cerca "C/C++".
+if ($vsixOk -and (Test-Path $vsixDest)) {
+    Write-Info "Installo cpp-runner.vsix..."
     $p = Start-Process -FilePath $codeExe `
-         -ArgumentList "--extensions-dir `"$extDir`" --install-extension $arg --force" `
+         -ArgumentList "--extensions-dir `"$extDir`" --install-extension `"$vsixDest`" --force" `
          -Wait -PassThru -WindowStyle Hidden
-    if($p.ExitCode -eq 0){ Write-Ok "$id installato" }
-    else { Write-Warn "${id}: exitcode $($p.ExitCode) — verra' scaricato al primo avvio" }
+    if ($p.ExitCode -eq 0) { Write-Ok "Estensione cpp-runner installata" }
+    else { Write-Warn "cpp-runner: exitcode $($p.ExitCode) — riprova manualmente" }
+} else {
+    Write-Warn "VSIX non disponibile — l'estensione cpp-runner non e' stata installata"
+}
 }
 
 # ─ 5. Collegamento desktop ────────────────────────────────────────────────────
@@ -304,11 +304,15 @@ Write-Host "  PATH di sistema  : NON modificato"     -ForegroundColor Green
 Write-Host "  Admin richiesto  : NO"                 -ForegroundColor Green
 Write-Host ""
 Write-Host "  Come iniziare:" -ForegroundColor Cyan
-Write-Host "    1. Apri 'VS Code C++ IDE' dal desktop"       -ForegroundColor White
-Write-Host "    2. Crea un file .c (Ctrl+N, salva come .c)"  -ForegroundColor White
-Write-Host "    3. Scrivi il codice"                         -ForegroundColor White
-Write-Host "    4. Premi F5 per compilare ed eseguire"       -ForegroundColor White
-Write-Host "    5. L'output appare nel pannello a destra"    -ForegroundColor White
+Write-Host "    1. Apri 'VS Code C++ IDE' dal desktop"              -ForegroundColor White
+Write-Host "    2. Crea un file .c  (Ctrl+N, poi Ctrl+S -> nome.c)" -ForegroundColor White
+Write-Host "    3. Scrivi il codice"                                -ForegroundColor White
+Write-Host "    4. Premi F5 per compilare ed eseguire"              -ForegroundColor White
+Write-Host "    5. L'output appare nel pannello a destra"           -ForegroundColor White
+Write-Host ""
+Write-Host "  Opzionale — Autocompletamento (IntelliSense):" -ForegroundColor DarkCyan
+Write-Host "    Apri VS Code > Ctrl+Shift+X > cerca 'C/C++' > installa" -ForegroundColor DarkGray
+Write-Host "    (scarica ~350 MB — fallo quando hai una buona connessione)" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host $sep -ForegroundColor Green
 Write-Host ""
