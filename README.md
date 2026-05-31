@@ -1,160 +1,180 @@
 # ⚡ VS Code C/C++ IDE
 
-Un ambiente di sviluppo C/C++ completo basato su VS Code, con compilatore GCC/MinGW
-già incluso e un'interfaccia di output pensata per i principianti — simile a Dev-C++.
+Un IDE C/C++ completo basato su VS Code, con compilatore GCC bundled e interfaccia
+di output stile Dev-C++ — pensato per chi inizia a programmare.
 
 ---
 
-## Caratteristiche principali
+## Installazione rapida — Windows
 
-| Funzione | Dettaglio |
-|---|---|
-| **Compilatore incluso** | GCC via MinGW-w64 (Windows) / GCC di sistema (Linux/Mac) |
-| **Un tasto per tutto** | **F5** compila ed esegue in un unico click |
-| **Output personalizzato** | Pannello laterale con log compilazione + output programma |
-| **Errori colorati** | Errori in rosso, warning in giallo, puntatori in blu |
-| **Input interattivo** | Campo stdin integrato nel pannello (come Dev-C++) |
-| **IntelliSense** | Autocompletamento, suggerimenti, analisi statica via ms-vscode.cpptools |
-| **Nessuna configurazione** | Funziona subito, senza `tasks.json` o `launch.json` |
+### Opzione A: Un comando (copia e incolla in CMD o PowerShell)
 
----
+> **Non serve essere amministratore. Non si modifica il PATH di sistema. Non serve riavvio.**
 
-## Installazione
+Apri **CMD** o **PowerShell** e incolla:
 
-### Windows (raccomandata)
-
-1. Scarica o clona questo repository
-2. Doppio clic su `installer\windows\install.bat`
-3. Segui le istruzioni a schermo (scarica VS Code + MinGW + estensioni automaticamente)
-4. Usa il collegamento **"VS Code C++ IDE"** sul desktop
-
-> L'installer scarica **~150 MB** (VS Code Portable + MinGW-w64 GCC 13).
-
-### Linux / macOS
-
-```bash
-chmod +x installer/linux/install.sh
-./installer/linux/install.sh
+```
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr 'https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/main/install.ps1' -UseBasicParsing).Content"
 ```
 
-### Installazione manuale dell'estensione
+Il comando:
+1. Scarica VS Code Portable (~90 MB)
+2. Scarica GCC/MinGW-w64 da winlibs.com — sempre l'ultima versione (~180 MB)
+3. Installa le estensioni (IntelliSense + pannello di output)
+4. Crea il collegamento **"VS Code C++ IDE"** sul desktop
+5. Verifica che `gcc --version` risponda correttamente
 
-Se hai già VS Code installato con GCC disponibile nel PATH:
+Download totale: **~300–400 MB** · Tempo stimato: ~5 minuti
 
-```bash
-# 1. Compila l'estensione
-./build.sh
+### Opzione B: Script locale
 
-# 2. Installa il VSIX
-code --install-extension extension/cpp-runner.vsix
+```
+git clone https://github.com/flavio-coding/vs-code-cpp.git
+cd vs-code-cpp
+powershell -ExecutionPolicy Bypass -File installer\windows\install.ps1
+```
+
+---
+
+## Domande frequenti
+
+### Serve il riavvio di Windows?
+
+**No.** Il compilatore è configurato tramite le impostazioni di VS Code
+(`settings.json`) — non viene toccato il PATH di sistema. Apri il collegamento
+sul desktop e funziona subito.
+
+### Serve essere amministratore?
+
+**No.** Tutto viene installato in `%LOCALAPPDATA%\VSCodeCPP` (cartella personale
+dell'utente).
+
+### Quale compilatore viene installato?
+
+[**WinLibs MinGW-w64**](https://winlibs.com) — una distribuzione standalone di GCC
+per Windows, senza bisogno di MSYS2. L'installer scarica sempre l'ultima versione
+stabile tramite GitHub API (fallback verificato: GCC 16.1.0 + MinGW-w64 14.0.0 UCRT,
+giugno 2026).
+
+> La guida ufficiale VS Code usa MSYS2 per installare GCC. WinLibs offre lo stesso
+> GCC in formato ZIP standalone — risultato identico, installazione più semplice.
+
+### Dove viene installato tutto?
+
+```
+%LOCALAPPDATA%\VSCodeCPP\
+├── vscode\         → VS Code Portable (con data\ per la modalità portabile)
+├── mingw64\        → GCC, G++, GDB e tutto il toolchain
+│   └── bin\
+│       ├── gcc.exe
+│       ├── g++.exe
+│       └── gdb.exe
+└── VSCodeCPP.bat   → Launcher alternativo (aggiunge mingw64\bin al PATH della sessione)
 ```
 
 ---
 
 ## Utilizzo
 
-1. Apri VS Code C++ IDE
-2. Crea un nuovo file (`Ctrl+N`) o apri un file `.c` / `.cpp`
+1. Apri **VS Code C++ IDE** dal desktop
+2. Crea un file `.c` o `.cpp` (`Ctrl+N`, poi salva con `Ctrl+S`)
 3. Scrivi il codice
-4. Premi **F5** — il pannello di output si apre automaticamente a destra
+4. Premi **F5** — si apre automaticamente il pannello di output a destra
 
 ### Tasti rapidi
 
 | Tasto | Azione |
 |---|---|
-| **F5** | Compila ed esegui |
+| **F5** | Salva, compila ed esegui |
 | **Ctrl+Shift+B** | Solo compila |
 | **Shift+F5** | Ferma l'esecuzione |
 
-### Barra di stato
+---
 
-Il pulsante in basso a sinistra mostra lo stato attuale:
-- `▶ Esegui (F5)` — pronto
-- `⚙ Compilazione...` — sta compilando
-- `▶ In esecuzione... [Stop]` — programma in esecuzione
-- `✗ Errore` — errore di compilazione
+## Pannello di output (non il terminale)
+
+L'output non usa il terminale integrato di VS Code. Viene aperto un pannello
+laterale dedicato con:
+
+```
+┌────────────────────────────────────────────────────┐
+│ ⚡ C/C++ IDE   [✓ Compilato]             [✕ Pulisci]│
+├────────────────────────────────────────────────────┤
+│ 🔧 LOG DI COMPILAZIONE                              │
+│  ✓ Compilato con successo in 0.31s                  │
+│                                                    │
+│ ▶ OUTPUT DEL PROGRAMMA                              │
+│  Inserisci un numero: 42                            │
+│  Il quadrato è: 1764                                │
+│                                                    │
+├────────────────────────────────────────────────────┤
+│  Processo terminato · Codice uscita: 0 · 0.08s     │
+├────────────────────────────────────────────────────┤
+│  Input (stdin): [_________________________] [Invia] │
+└────────────────────────────────────────────────────┘
+```
+
+**Errori di compilazione** vengono evidenziati in rosso con il numero di riga,
+warning in giallo — facile capire dove correggere senza leggere output grezzo.
 
 ---
 
-## Pannello di output
+## Installazione Linux / macOS
 
-```
-┌─────────────────────────────────────────────┐
-│ ⚡ C/C++ IDE   [✓ Compilato]      [✕ Pulisci]│
-├─────────────────────────────────────────────┤
-│ 🔧 LOG DI COMPILAZIONE                       │
-│                                             │
-│  ✓ Compilato con successo in 0.31s           │
-│                                             │
-│ ▶ OUTPUT DEL PROGRAMMA                       │
-│                                             │
-│  Inserisci un numero: 42                     │
-│  Il quadrato è: 1764                         │
-│                                             │
-├─────────────────────────────────────────────┤
-│ Processo terminato  Codice uscita: 0  0.08s │
-├─────────────────────────────────────────────┤
-│ Input (stdin): [ ___________________ ][Invia]│
-└─────────────────────────────────────────────┘
+```bash
+chmod +x installer/linux/install.sh
+./installer/linux/install.sh
 ```
 
-**In caso di errore:**
-```
-│ ✗ Errore di compilazione (0.12s)             │
-│                                             │
-│  main.c:5:10: error: expected ';'            │
-│      before 'return'                         │
-│    5 │   return 0                            │
-│      │          ^                            │
-```
+Installa GCC tramite il package manager del sistema (`apt`, `dnf`, `pacman`).
 
 ---
 
-## Configurazione
+## Configurazione avanzata
 
-Apri `File > Preferenze > Impostazioni` e cerca `C/C++ Runner`.
+`File → Preferenze → Impostazioni` → cerca `C/C++ Runner`:
 
-| Impostazione | Descrizione | Default |
+| Impostazione | Default | Descrizione |
 |---|---|---|
-| `cpp-runner.compilerPath` | Cartella bin del compilatore | auto-detect |
-| `cpp-runner.cCompiler` | Nome eseguibile C | `gcc` |
-| `cpp-runner.cppCompiler` | Nome eseguibile C++ | `g++` |
-| `cpp-runner.compileArgs` | Argomenti aggiuntivi | `["-Wall", "-Wextra", "-g"]` |
-| `cpp-runner.showTimings` | Mostra tempi di compilazione | `true` |
+| `cpp-runner.compilerPath` | auto | Cartella bin del compilatore |
+| `cpp-runner.cCompiler` | `gcc` | Nome eseguibile per file `.c` |
+| `cpp-runner.cppCompiler` | `g++` | Nome eseguibile per file `.cpp` |
+| `cpp-runner.compileArgs` | `["-Wall","-Wextra","-g"]` | Flag aggiuntivi |
+| `cpp-runner.showTimings` | `true` | Mostra tempi di compilazione |
+
+---
+
+## Struttura del repository
+
+```
+vs-code-cpp/
+├── install.ps1              ← entry point per il one-liner CMD
+├── extension/
+│   ├── src/
+│   │   ├── extension.ts     ← comandi, barra di stato (F5 / Stop)
+│   │   ├── compiler.ts      ← trova GCC, compila, esegue, cattura output
+│   │   └── outputPanel.ts   ← pannello WebView stile Dev-C++
+│   └── cpp-runner.vsix      ← pacchetto pronto all'installazione
+├── installer/
+│   ├── windows/
+│   │   ├── install.bat      ← doppio clic per installare (alternativo)
+│   │   └── install.ps1      ← installer PowerShell completo
+│   └── linux/
+│       └── install.sh
+├── vscode-config/
+│   └── settings.json        ← template impostazioni pre-configurate
+└── build.sh                 ← compila l'estensione TypeScript → VSIX
+```
 
 ---
 
 ## Build dell'estensione (sviluppatori)
 
-Richiede **Node.js 18+**:
+Richiede Node.js 18+:
 
 ```bash
 ./build.sh
 # Output: extension/cpp-runner.vsix
-```
-
----
-
-## Struttura del progetto
-
-```
-vs-code-cpp/
-├── extension/              # Sorgente estensione VS Code (TypeScript)
-│   ├── src/
-│   │   ├── extension.ts    # Punto di ingresso, comandi, barra di stato
-│   │   ├── compiler.ts     # Logica di compilazione ed esecuzione
-│   │   └── outputPanel.ts  # Pannello WebView (UI output)
-│   ├── out/                # JavaScript compilato
-│   └── cpp-runner.vsix     # Pacchetto pronto all'installazione
-├── installer/
-│   ├── windows/
-│   │   ├── install.bat     # Avvia l'installer (doppio clic)
-│   │   └── install.ps1     # Installer PowerShell completo
-│   └── linux/
-│       └── install.sh      # Installer Linux/macOS
-├── vscode-config/
-│   └── settings.json       # Impostazioni VS Code pre-configurate
-└── build.sh                # Script di build dell'estensione
 ```
 
 ---
