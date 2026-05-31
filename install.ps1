@@ -261,7 +261,7 @@ foreach($extItem in @(
          -ArgumentList "--extensions-dir `"$extDir`" --install-extension $arg --force" `
          -Wait -PassThru -WindowStyle Hidden
     if($p.ExitCode -eq 0){ Write-Ok "$id installato" }
-    else { Write-Warn "$id: exitcode $($p.ExitCode) — verrà scaricato al primo avvio" }
+    else { Write-Warn "${id}: exitcode $($p.ExitCode) — verra' scaricato al primo avvio" }
 }
 
 # ─ 5. Collegamento desktop ────────────────────────────────────────────────────

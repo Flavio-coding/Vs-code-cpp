@@ -14,10 +14,10 @@ di output stile Dev-C++ — pensato per chi inizia a programmare.
 Apri **CMD** o **PowerShell** e incolla:
 
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -Command "[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((iwr 'https://api.github.com/repos/flavio-coding/vs-code-cpp/contents/install.ps1?ref=claude%2Fvscode-cpp-ide-mingw-EKrIV' -UseBasicParsing|ConvertFrom-Json).content))|iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$b='claude/vscode-cpp-ide-mingw-EKrIV';$u='https://api.github.com/repos/flavio-coding/vs-code-cpp/contents/install.ps1?ref='+[Uri]::EscapeDataString($b);[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((iwr $u -UseBasicParsing|ConvertFrom-Json).content))|iex"
 ```
 
-> **Nota:** quando questo branch verrà unito a `main`, il comando diventerà più corto:
+> Quando questo branch verrà unito a `main` il comando si semplifica:
 > ```
 > powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr 'https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/main/install.ps1' -UseBasicParsing).Content"
 > ```

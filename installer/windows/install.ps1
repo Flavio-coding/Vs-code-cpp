@@ -328,7 +328,7 @@ foreach ($extId in @("ms-vscode.cpptools")) {
          -ArgumentList "--extensions-dir `"$extDataDir`" --install-extension $extId --force" `
          -Wait -PassThru -WindowStyle Hidden
     if ($p.ExitCode -eq 0) { Write-Ok "$extId installato" }
-    else { Write-Warn "$extId: installazione non riuscita, verrà scaricato al primo avvio" }
+    else { Write-Warn "${extId}: installazione non riuscita, verra' scaricato al primo avvio" }
 }
 
 # ── STEP 5: Collegamento desktop e launcher ───────────────────────────────────
