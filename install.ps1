@@ -20,9 +20,11 @@ $ErrorActionPreference = 'Stop'
 
 $VSCODE_URL = "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 
-$REPO_BRANCH     = "main"   # quando questo branch è su main; altrimenti: claude/vscode-cpp-ide-mingw-EKrIV
-$REPO_RAW        = "https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/$REPO_BRANCH"
-$VSIX_URL        = "$REPO_RAW/extension/cpp-runner.vsix"
+$REPO_BRANCH     = "claude/vscode-cpp-ide-mingw-EKrIV"
+# raw.githubusercontent.com non supporta branch con slash nel nome — uso GitHub API
+$REPO_API_BASE   = "https://api.github.com/repos/flavio-coding/vs-code-cpp/contents"
+$REPO_REF        = [Uri]::EscapeDataString($REPO_BRANCH)   # encode lo slash
+$VSIX_API_URL    = "$REPO_API_BASE/extension/cpp-runner.vsix?ref=$REPO_REF"
 
 $MINGW_FALLBACK_TAG  = "16.1.0posix-14.0.0-ucrt-r2"
 $MINGW_FALLBACK_FILE = "winlibs-x86_64-posix-seh-gcc-16.1.0-mingw-w64ucrt-14.0.0-r2.zip"
@@ -188,7 +190,13 @@ Write-Step 3 5 "Estensione C/C++ Runner (VSIX)..."
 $vsixDest = "$InstallDir\tmp\cpp-runner.vsix"
 $vsixOk   = $false
 try {
-    Invoke-Download $VSIX_URL $vsixDest "cpp-runner.vsix"
+    # GitHub API restituisce il file in base64 — necessario per branch con slash nel nome
+    Write-Info "Scarico VSIX tramite GitHub API..."
+    $h = @{ "User-Agent"="VSCodeCPP-Installer/2.0"; "Accept"="application/vnd.github+json" }
+    $apiResp = Invoke-RestMethod $VSIX_API_URL -Headers $h -TimeoutSec 30 -ErrorAction Stop
+    $bytes = [Convert]::FromBase64String($apiResp.content -replace '\s','')
+    [IO.File]::WriteAllBytes($vsixDest, $bytes)
+    Write-Ok "cpp-runner.vsix scaricato ($([math]::Round($bytes.Length/1KB,1)) KB)"
     $vsixOk = $true
 } catch {
     Write-Warn "VSIX non scaricabile: $($_.Exception.Message)"

@@ -14,8 +14,13 @@ di output stile Dev-C++ — pensato per chi inizia a programmare.
 Apri **CMD** o **PowerShell** e incolla:
 
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr 'https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/main/install.ps1' -UseBasicParsing).Content"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((iwr 'https://api.github.com/repos/flavio-coding/vs-code-cpp/contents/install.ps1?ref=claude%2Fvscode-cpp-ide-mingw-EKrIV' -UseBasicParsing|ConvertFrom-Json).content))|iex"
 ```
+
+> **Nota:** quando questo branch verrà unito a `main`, il comando diventerà più corto:
+> ```
+> powershell -NoProfile -ExecutionPolicy Bypass -Command "iex (iwr 'https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/main/install.ps1' -UseBasicParsing).Content"
+> ```
 
 Il comando:
 1. Scarica VS Code Portable (~90 MB)

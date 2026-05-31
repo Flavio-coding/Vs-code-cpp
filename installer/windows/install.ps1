@@ -25,9 +25,10 @@ $ErrorActionPreference = 'Stop'
 $VSCODE_URL = "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 
 # URL VSIX dell'estensione cpp-runner dal repo GitHub
-$REPO_BRANCH = "claude/vscode-cpp-ide-mingw-EKrIV"
-$REPO_RAW    = "https://raw.githubusercontent.com/flavio-coding/vs-code-cpp/$REPO_BRANCH"
-$VSIX_URL    = "$REPO_RAW/extension/cpp-runner.vsix"
+$REPO_BRANCH   = "claude/vscode-cpp-ide-mingw-EKrIV"
+$REPO_API_BASE = "https://api.github.com/repos/flavio-coding/vs-code-cpp/contents"
+$REPO_REF      = [Uri]::EscapeDataString($REPO_BRANCH)
+$VSIX_API_URL  = "$REPO_API_BASE/extension/cpp-runner.vsix?ref=$REPO_REF"
 
 # URL fallback GCC (winlibs GCC 16.1.0 + MinGW-w64 14.0.0 UCRT, POSIX, SEH)
 # Fonte: https://winlibs.com  —  release verificata maggio 2026
@@ -235,13 +236,27 @@ Write-Ok "GCC verificato: $gccVer"
 # ── STEP 3: Estensione cpp-runner (VSIX) ──────────────────────────────────────
 Write-Step 3 5 "Download estensione C/C++ Runner..."
 
-$vsixDest = "$InstallDir\tmp\cpp-runner.vsix"
-try {
-    Invoke-Download $VSIX_URL $vsixDest "cpp-runner.vsix"
-} catch {
-    Write-Warn "Impossibile scaricare il VSIX dal repo: $($_.Exception.Message)"
-    Write-Warn "L'estensione cpp-runner non verrà installata. Puoi installarla manualmente."
-    $vsixDest = $null
+# Prima controlla se il VSIX è già presente localmente (esecuzione da clone del repo)
+$vsixLocal = Join-Path $PSScriptRoot "..\..\extension\cpp-runner.vsix"
+$vsixDest  = $null
+if (Test-Path $vsixLocal) {
+    $vsixDest = $vsixLocal
+    Write-Ok "VSIX locale trovato: $vsixLocal"
+} else {
+    # Scarica via GitHub API (gestisce branch con slash — raw.githubusercontent.com non lo supporta)
+    $vsixDest = "$InstallDir\tmp\cpp-runner.vsix"
+    try {
+        Write-Info "Scarico VSIX tramite GitHub API (branch: $REPO_BRANCH)..."
+        $h     = @{ "User-Agent"="VSCodeCPP-Installer/2.0"; "Accept"="application/vnd.github+json" }
+        $r     = Invoke-RestMethod $VSIX_API_URL -Headers $h -TimeoutSec 30 -ErrorAction Stop
+        $bytes = [Convert]::FromBase64String($r.content -replace '\s','')
+        [IO.File]::WriteAllBytes($vsixDest, $bytes)
+        Write-Ok "cpp-runner.vsix scaricato ($([math]::Round($bytes.Length/1KB,1)) KB)"
+    } catch {
+        Write-Warn "VSIX non scaricabile: $($_.Exception.Message)"
+        Write-Warn "L'estensione cpp-runner non sara' installata ora."
+        $vsixDest = $null
+    }
 }
 
 # ── STEP 4: Configurazione VS Code ───────────────────────────────────────────
