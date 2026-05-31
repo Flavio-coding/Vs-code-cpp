@@ -1,0 +1,128 @@
+{
+  "name": "cpp-runner",
+  "displayName": "C/C++ IDE Runner",
+  "description": "Compile and run C/C++ with one click. Bundled GCC, friendly output panel.",
+  "version": "1.0.0",
+  "publisher": "cpp-ide",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages", "Debuggers"],
+  "repository": { "type": "git", "url": "https://github.com/flavio-coding/vs-code-cpp" },
+  "activationEvents": [
+    "onLanguage:c",
+    "onLanguage:cpp"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cpp-runner.run",
+        "title": "Compila ed Esegui",
+        "category": "C/C++",
+        "icon": "$(play)"
+      },
+      {
+        "command": "cpp-runner.build",
+        "title": "Solo Compila",
+        "category": "C/C++",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "cpp-runner.stop",
+        "title": "Ferma Esecuzione",
+        "category": "C/C++",
+        "icon": "$(stop-circle)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "cpp-runner.run",
+          "when": "resourceLangId == c || resourceLangId == cpp",
+          "group": "navigation@1"
+        },
+        {
+          "command": "cpp-runner.stop",
+          "when": "(resourceLangId == c || resourceLangId == cpp) && cpp-runner.isRunning",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "cpp-runner.run",
+          "when": "resourceLangId == c || resourceLangId == cpp"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "cpp-runner.run",
+        "key": "f5",
+        "when": "resourceLangId == c || resourceLangId == cpp"
+      },
+      {
+        "command": "cpp-runner.stop",
+        "key": "shift+f5",
+        "when": "cpp-runner.isRunning"
+      },
+      {
+        "command": "cpp-runner.build",
+        "key": "ctrl+shift+b",
+        "when": "resourceLangId == c || resourceLangId == cpp"
+      }
+    ],
+    "configuration": {
+      "title": "C/C++ IDE Runner",
+      "properties": {
+        "cpp-runner.compilerPath": {
+          "type": "string",
+          "default": "",
+          "description": "Percorso al compilatore GCC/G++. Lascia vuoto per rilevamento automatico."
+        },
+        "cpp-runner.cCompiler": {
+          "type": "string",
+          "default": "gcc",
+          "description": "Eseguibile compilatore C (gcc o clang)"
+        },
+        "cpp-runner.cppCompiler": {
+          "type": "string",
+          "default": "g++",
+          "description": "Eseguibile compilatore C++ (g++ o clang++)"
+        },
+        "cpp-runner.compileArgs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["-Wall", "-g"],
+          "description": "Argomenti aggiuntivi per il compilatore"
+        },
+        "cpp-runner.outputDir": {
+          "type": "string",
+          "default": "",
+          "description": "Cartella di output per i file compilati. Lascia vuoto per usare la stessa del sorgente."
+        },
+        "cpp-runner.showTimings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mostra il tempo di compilazione e di esecuzione"
+        },
+        "cpp-runner.language": {
+          "type": "string",
+          "enum": ["it", "en"],
+          "default": "it",
+          "description": "Lingua dell'interfaccia"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^2.0.0"
+  }
+}

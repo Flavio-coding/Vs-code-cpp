@@ -1,0 +1,37 @@
+{
+  "cpp-runner.cCompiler": "gcc",
+  "cpp-runner.cppCompiler": "g++",
+  "cpp-runner.compileArgs": ["-Wall", "-Wextra", "-g", "-std=c17"],
+  "cpp-runner.showTimings": true,
+
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'Consolas', 'Courier New', monospace",
+  "editor.minimap.enabled": false,
+  "editor.suggestSelection": "first",
+  "editor.wordWrap": "off",
+  "editor.tabSize": 4,
+  "editor.detectIndentation": false,
+  "editor.renderWhitespace": "selection",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.formatOnSave": false,
+
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.iconTheme": "vs-seti",
+
+  "files.defaultLanguage": "c",
+  "files.autoSave": "onFocusChange",
+  "files.associations": {
+    "*.h": "c",
+    "*.hpp": "cpp"
+  },
+
+  "C_Cpp.default.cStandard": "c17",
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.autocompleteAddParentheses": true,
+  "C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
+  "C_Cpp.inlayHints.parameterNames.enabled": true,
+
+  "terminal.integrated.defaultProfile.windows": "PowerShell"
+}
